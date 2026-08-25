@@ -1,135 +1,183 @@
-import React, { useRef, useState } from 'react';
-import { Canvas, useFrame } from '@react-three/fiber';
-import { OrbitControls, MeshDistortMaterial, Float, Sphere, Text } from '@react-three/drei';
-import { motion } from 'framer-motion';
-import { Github, Linkedin, Mail, ExternalLink, Code, Briefcase, User, Send } from 'lucide-react';
+import React, { useState, useRef } from 'react';
+import { motion, AnimatePresence } from 'framer-motion';
+import { Code, Briefcase, GraduationCap, ExternalLink, Eye, X, ChevronLeft, ChevronRight } from 'lucide-react';
 
-// ==========================================
-// 1. COMPONENTS 3D (THREE.JS / R3F)
-// ==========================================
-
-// Vật thể 3D tương tác chính ở Hero Section
-function HeroAnimatedShape() {
-  const meshRef = useRef();
-
-  useFrame((state) => {
-    const time = state.clock.getElapsedTime();
-    meshRef.current.rotation.x = time * 0.2;
-    meshRef.current.rotation.y = time * 0.3;
-  });
-
+function GithubIcon({ className = "w-5 h-5" }) {
   return (
-    <Float speed={2.5} rotationIntensity={1.5} floatIntensity={2}>
-      <mesh ref={meshRef} scale={2.4}>
-        <icosahedronGeometry args={[1, 4]} />
-        <MeshDistortMaterial
-          color="#6366f1"
-          attach="material"
-          distort={0.4}
-          speed={2}
-          roughness={0.2}
-          metalness={0.8}
-        />
-      </mesh>
-    </Float>
+    <svg className={`${className} fill-current`} viewBox="0 0 24 24">
+      <path d="M12 0C5.37 0 0 5.37 0 12c0 5.31 3.435 9.795 8.205 11.385.6.105.825-.255.825-.57 0-.285-.015-1.23-.015-2.235-3.015.555-3.795-.735-4.035-1.41-.135-.345-.72-1.41-1.23-1.695-.42-.225-1.02-.78-.015-.795.945-.015 1.62.87 1.845 1.23 1.08 1.815 2.805 1.305 3.495.99.105-.78.42-1.305.765-1.605-2.67-.3-5.46-1.335-5.46-5.925 0-1.305.465-2.385 1.23-3.225-.12-.3-.54-1.53.12-3.18 0 0 1.005-.315 3.3 1.23.96-.27 1.98-.405 3-.405s2.04.135 3 .405c2.295-1.56 3.3-1.23 3.3-1.23.66 1.65.24 2.88.12 3.18.765.84 1.23 1.905 1.23 3.225 0 4.605-2.805 5.625-5.475 5.925.435.375.81 1.095.81 2.22 0 1.605-.015 2.895-.015 3.3 0 .315.225.69.825.57A12.02 12.02 0 0024 12c0-6.63-5.37-12-12-12z" />
+    </svg>
   );
 }
 
-// Canvas 3D background cho Hero Section
-function Hero3DCanvas() {
+// ==========================================
+// COMPONENT NHÂN VẬT 3D TƯƠNG TÁC CHUỘT NỔI KHUNG
+// ==========================================
+function Interactive3DCharacter() {
+  const cardRef = useRef(null);
+  const [rotate, setRotate] = useState({ x: 0, y: 0 });
+
+  const handleMouseMove = (e) => {
+    if (!cardRef.current) return;
+    const rect = cardRef.current.getBoundingClientRect();
+    const x = e.clientX - rect.left - rect.width / 2;
+    const y = e.clientY - rect.top - rect.height / 2;
+
+    setRotate({
+      x: -y / 15,
+      y: x / 15
+    });
+  };
+
+  const handleMouseLeave = () => {
+    setRotate({ x: 0, y: 0 });
+  };
+
   return (
-    <div className="h-[450px] w-full cursor-grab active:cursor-grabbing">
-      <Canvas camera={{ position: [0, 0, 5], fov: 75 }}>
-        <ambientLight intensity={0.8} />
-        <directionalLight position={[10, 10, 5]} intensity={1.5} />
-        <pointLight position={[-10, -10, -10]} color="#ec4899" intensity={1} />
-        <HeroAnimatedShape />
-        <OrbitControls enableZoom={false} autoRotate autoRotateSpeed={1.5} />
-      </Canvas>
+    <div 
+      className="relative w-full h-[520px] flex items-center justify-center perspective-1000"
+      onMouseMove={handleMouseMove}
+      onMouseLeave={handleMouseLeave}
+    >
+      <motion.div
+        ref={cardRef}
+        animate={{ rotateX: rotate.x, rotateY: rotate.y }}
+        transition={{ type: "spring", stiffness: 150, damping: 15 }}
+        style={{ transformStyle: "preserve-3d" }}
+        className="relative w-[360px] h-[480px] flex items-end justify-center cursor-pointer"
+      >
+        {/* Lớp 1: Khung Card thủy tinh phía sau */}
+        <div 
+          style={{ transform: "translateZ(0px)" }}
+          className="absolute inset-x-2 bottom-0 top-16 rounded-3xl bg-slate-900/60 border border-indigo-500/30 backdrop-blur-md shadow-2xl shadow-indigo-950/50"
+        />
+
+        {/* Lớp 2: Quầng sáng Neon Ambient đỏ/cam/tím đằng sau */}
+        <div 
+          style={{ transform: "translateZ(20px)" }}
+          className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-72 h-72 bg-gradient-to-tr from-indigo-600/40 via-purple-600/30 to-pink-500/20 rounded-full blur-3xl opacity-80 pointer-events-none"
+        />
+
+        {/* Lớp 3: Ảnh nhân vật PNG nổi lên trên cùng (TranslateZ cao hơn khung) */}
+        <motion.img 
+          src="/assets/avatar.png" 
+          alt="Thái Hoàng Tân 3D"
+          style={{ transform: "translateZ(60px)" }}
+          className="relative z-10 h-[500px] object-contain drop-shadow-[0_20px_35px_rgba(0,0,0,0.85)] pointer-events-none select-none"
+          onError={(e) => {
+            // Ảnh fallback nếu chưa đổi đường dẫn
+            e.target.src = "https://images.unsplash.com/photo-1534528741775-53994a69daeb?auto=format&fit=crop&w=800&q=80";
+          }}
+        />
+      </motion.div>
     </div>
   );
 }
 
-// ==========================================
-// 2. DỮ LIỆU PORTFOLIO (Đổi thông tin của bạn tại đây)
-// ==========================================
-
 const PERSONAL_INFO = {
-  name: "Nguyễn Văn A",
-  role: "Fullstack Web Developer",
-  about: "Lập trình viên đam mê tối ưu hóa hiệu năng, xây dựng hệ thống web hiện đại và trải nghiệm người dùng ấn tượng với React, PHP, MySQL & 3D Web Graphics.",
-  github: "https://github.com",
-  linkedin: "https://linkedin.com",
-  email: "contact@domain.com"
+  name: "Thái Hoàng Tân",
+  dob: "12/10/2002",
+  degree: "Cử nhân Công nghệ Thông tin - Đại học Sài Gòn (SGU)",
+  role: "Fullstack Web Developer & System Architect",
+  about: "Lập trình viên Web Fullstack chuyên sâu về kiến trúc hệ thống quản trị doanh nghiệp (ERP, CRM), tối ưu hóa trải nghiệm bán hàng thương mại điện tử và tự động hóa quy trình nghiệp vụ (Workflow Automation). Đam mê ứng dụng công nghệ mới và AI vào giải quyết bài toán thực tế.",
+  github: "https://github.com/hoanggtan02"
 };
-
-const SKILLS = ["React.js", "Next.js", "PHP", "MySQL", "Tailwind CSS", "Three.js", "RESTful API", "Git & Docker"];
 
 const EXPERIENCES = [
   {
-    period: "2024 - Hiện tại",
-    role: "Senior Fullstack Developer",
-    company: "Công ty Công Nghệ ABC",
-    desc: "Phát triển hệ thống quản lý nội bộ, tích hợp API thanh toán và tối ưu tốc độ tải trang tăng 40%."
+    period: "12/2025 - Hiện tại",
+    role: "Web Developer",
+    company: "Công ty TNHH Tin học Thành Nhân (Thành Nhân TNC)",
+    desc: "Chịu trách nhiệm nâng cấp, bảo trì và phát triển nền tảng E-commerce bán hàng. Thiết kế các giải pháp tự động hóa quy trình vận hành nội bộ, chuẩn hóa luồng xử lý dữ liệu thủ công giúp nâng cao năng suất và tối ưu trải nghiệm người dùng."
   },
   {
-    period: "2022 - 2024",
-    role: "Frontend Developer",
-    company: "Agency Digital XYZ",
-    desc: "Xây dựng hơn 15+ giao diện Website E-commerce, Landing Page tương tác cao cho khách hàng doanh nghiệp."
+    period: "09/2024 - 12/2025",
+    role: "PHP Developer",
+    company: "Công ty TNHH ECLO",
+    desc: "Trực tiếp phân tích, thiết kế cơ sở dữ liệu và lập trình mô-đun cho các phân hệ ERP & CRM phức tạp. Xây dựng cấu trúc RESTful API chuẩn mực, tối ưu hóa truy vấn dữ liệu lớn và đáp ứng bài toán quản trị luồng công việc linh hoạt."
+  },
+  {
+    period: "04/2024 - 08/2024",
+    role: "Trợ giảng Trí tuệ Nhân tạo (AI Teaching Assistant)",
+    company: "Công ty TNHH AI Education",
+    desc: "Hỗ trợ giảng dạy, hướng dẫn thực hành và truyền đạt kiến thức nền tảng về Trí tuệ nhân tạo (AI) cho học viên. Đồng thời trực tiếp tham gia hỗ trợ giải đáp kỹ thuật và phát triển tài liệu học tập."
   }
 ];
 
 const PROJECTS = [
   {
-    title: "E-Commerce System 3D",
-    desc: "Hệ thống bán hàng trực tuyến tích hợp xem mô hình sản phẩm 3D trực quan.",
-    tags: ["React", "Three.js", "Tailwind"],
-    demo: "#",
-    github: "#"
+    id: 1,
+    title: "Website Thương Mại Điện Tử Thành Nhân TNC",
+    desc: "Tối ưu hóa hệ thống bán hàng thiết bị công nghệ.",
+    image: "/assets/projects/tnc-1.jpg",
+    gallery: ["/assets/projects/tnc-1.jpg", "/assets/projects/tnc-2.jpg"],
+    demo: "https://www.tnc.com.vn/"
   },
   {
-    title: "Realtime Dashboard",
-    desc: "Hệ thống quản lý doanh thu và nhân sự thời gian thực với biểu đồ tương tác.",
-    tags: ["PHP", "MySQL", "Chart.js"],
-    demo: "#",
-    github: "#"
+    id: 2,
+    title: "Nền Tảng Trí Tuệ Nhân Tạo AI VMIED",
+    desc: "Hệ thống tích hợp các mô hình AI phục vụ học tập, tra cứu kiến thức và xử lý dữ liệu thông minh cho người dùng.",
+    image: "/assets/projects/ai-1.jpg",
+    gallery: ["/assets/projects/ai-1.jpg"],
+    demo: "https://ai.vmied.com/"
   },
   {
-    title: "AI Content Generator",
-    desc: "Công cụ hỗ trợ tạo bài viết tự động ứng dụng LLM API và giao diện tối giản.",
-    tags: ["Next.js", "API Integration", "Tailwind"],
-    demo: "#",
-    github: "#"
+    id: 3,
+    title: "Hệ Thống Quản Lý Học Tập VMIED LMS",
+    desc: "Nền tảng quản lý khóa học, bài giảng và tiến độ học tập trực tuyến dành cho học viên và giảng viên.",
+    image: "/assets/projects/lms-1.jpg",
+    gallery: ["/assets/projects/lms-1.jpg"],
+    demo: "https://lms.vmied.com/"
+  },
+  {
+    id: 4,
+    title: "Website Thương Hiệu Ngọc Hiền Pearl",
+    desc: "Website giới thiệu và trưng bày các sản phẩm ngọc trai cao cấp, tối ưu trải nghiệm thương hiệu và hiển thị sản phẩm.",
+    image: "/assets/projects/pearl-1.jpg",
+    gallery: ["/assets/projects/pearl-1.jpg"],
+    demo: "https://ngochienpearl.com/"
+  },
+  {
+    id: 5,
+    title: "Hệ Thống Quản Trị Doanh Nghiệp ERP & CRM Nội Bộ",
+    desc: "Phân hệ quản trị nội bộ nâng cao: phân quyền đa tầng, quản lý nhân sự HRM, quản lý dự án, tính hoa hồng tự động và xuất báo cáo Excel.",
+    image: "/assets/projects/erp-1.jpg",
+    gallery: ["/assets/projects/erp-1.jpg", "/assets/projects/erp-2.jpg","/assets/projects/erp-3.jpg"],
+    demo: null
   }
 ];
 
-// ==========================================
-// 3. MAIN PORTFOLIO APP
-// ==========================================
-
 export default function App() {
+  const [activeProject, setActiveProject] = useState(null);
+  const [currentImageIdx, setCurrentImageIdx] = useState(0);
+
+  const openModal = (proj) => {
+    setActiveProject(proj);
+    setCurrentImageIdx(0);
+  };
+
+  const closeModal = () => {
+    setActiveProject(null);
+  };
+
   return (
     <div className="bg-slate-950 text-slate-100 min-h-screen font-sans selection:bg-indigo-500 selection:text-white">
-      
-      {/* --- NAVBAR --- */}
+      {/* Navigation */}
       <nav className="fixed top-0 left-0 right-0 z-50 bg-slate-950/80 backdrop-blur-md border-b border-slate-800/80">
         <div className="max-w-6xl mx-auto px-6 h-16 flex items-center justify-between">
           <span className="text-xl font-bold bg-gradient-to-r from-indigo-400 to-pink-500 bg-clip-text text-transparent">
-            DevPortfolio.3D
+            TanDev.Portfolio
           </span>
           <div className="flex gap-6 text-sm font-medium text-slate-400">
             <a href="#about" className="hover:text-indigo-400 transition">Giới thiệu</a>
             <a href="#experience" className="hover:text-indigo-400 transition">Kinh nghiệm</a>
             <a href="#projects" className="hover:text-indigo-400 transition">Dự án</a>
-            <a href="#contact" className="hover:text-indigo-400 transition">Liên hệ</a>
           </div>
         </div>
       </nav>
 
       <main className="max-w-6xl mx-auto px-6 pt-24 space-y-32 pb-20">
-        
-        {/* --- HERO SECTION --- */}
+        {/* About Section */}
         <section id="about" className="grid grid-cols-1 lg:grid-cols-2 gap-8 items-center min-h-[80vh]">
           <motion.div 
             initial={{ opacity: 0, y: 30 }}
@@ -138,61 +186,56 @@ export default function App() {
             className="space-y-6"
           >
             <span className="px-3 py-1 rounded-full text-xs font-semibold bg-indigo-500/10 text-indigo-400 border border-indigo-500/20">
-              Xin chào, tôi là
+              Fullstack Software Engineer
             </span>
             <h1 className="text-4xl sm:text-6xl font-extrabold tracking-tight">
               {PERSONAL_INFO.name}
             </h1>
-            <h2 className="text-2xl font-bold text-indigo-400">
+            <h2 className="text-xl font-semibold text-indigo-400">
               {PERSONAL_INFO.role}
             </h2>
+
+            <div className="p-4 bg-slate-900/80 border border-slate-800 rounded-xl space-y-2 text-sm text-slate-300">
+              <div className="flex items-center gap-2 text-indigo-300 font-medium">
+                <GraduationCap size={18} />
+                <span>{PERSONAL_INFO.degree}</span>
+              </div>
+              <div className="text-xs text-slate-400">
+                Ngày sinh: <span className="text-slate-200">{PERSONAL_INFO.dob}</span>
+              </div>
+            </div>
+
             <p className="text-slate-400 leading-relaxed text-base">
               {PERSONAL_INFO.about}
             </p>
 
-            {/* Kỹ năng (Badges) */}
-            <div className="flex flex-wrap gap-2 pt-2">
-              {SKILLS.map((skill, idx) => (
-                <span key={idx} className="px-3 py-1 bg-slate-900 border border-slate-800 rounded-md text-xs font-medium text-slate-300">
-                  {skill}
-                </span>
-              ))}
-            </div>
-
-            {/* Actions */}
             <div className="flex gap-4 pt-4">
-              <a href="#contact" className="flex items-center gap-2 px-6 py-3 rounded-lg bg-indigo-600 hover:bg-indigo-500 text-white font-medium transition shadow-lg shadow-indigo-600/30">
-                <Mail size={18} /> Liên hệ ngay
-              </a>
-              <a href={PERSONAL_INFO.github} target="_blank" rel="noreferrer" className="p-3 rounded-lg bg-slate-900 border border-slate-800 hover:border-slate-700 text-slate-300 transition">
-                <Github size={20} />
-              </a>
-              <a href={PERSONAL_INFO.linkedin} target="_blank" rel="noreferrer" className="p-3 rounded-lg bg-slate-900 border border-slate-800 hover:border-slate-700 text-slate-300 transition">
-                <Linkedin size={20} />
+              <a 
+                href={PERSONAL_INFO.github} 
+                target="_blank" 
+                rel="noreferrer" 
+                className="flex items-center gap-2 px-4 py-2.5 rounded-lg bg-slate-900 border border-slate-800 hover:border-indigo-500/50 text-slate-200 hover:text-white transition text-sm font-medium"
+              >
+                <GithubIcon className="w-5 h-5 text-indigo-400" />
+                <span>GitHub Profile</span>
               </a>
             </div>
           </motion.div>
 
-          {/* Canvas 3D Hero */}
           <motion.div
             initial={{ opacity: 0, scale: 0.8 }}
             animate={{ opacity: 1, scale: 1 }}
             transition={{ duration: 1 }}
-            className="relative"
           >
-            <div className="absolute inset-0 bg-indigo-500/10 blur-3xl rounded-full" />
-            <Hero3DCanvas />
-            <p className="text-center text-xs text-slate-500 italic mt-2">
-              * Rê chuột hoặc vuốt để xoay tương tác vật thể 3D
-            </p>
+            <Interactive3DCharacter />
           </motion.div>
         </section>
 
-        {/* --- KINH NGHIỆM LÀM VIỆC --- */}
+        {/* Experience Section */}
         <section id="experience" className="space-y-12">
           <div className="flex items-center gap-3">
             <Briefcase className="text-indigo-400" size={28} />
-            <h2 className="text-3xl font-bold">Kinh Nghiệm Làm Việc</h2>
+            <h2 className="text-3xl font-bold">Kinh Nghiệm Thực Chiến</h2>
           </div>
 
           <div className="relative border-l-2 border-slate-800 ml-4 pl-8 space-y-10">
@@ -215,83 +258,157 @@ export default function App() {
           </div>
         </section>
 
-        {/* --- DỰ ÁN ĐÃ LÀM --- */}
+        {/* Projects Section */}
         <section id="projects" className="space-y-12">
           <div className="flex items-center gap-3">
             <Code className="text-indigo-400" size={28} />
-            <h2 className="text-3xl font-bold">Dự Án Nổi Bật</h2>
+            <h2 className="text-3xl font-bold">Dự Án Đã Triển Khai</h2>
           </div>
 
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-            {PROJECTS.map((proj, idx) => (
+            {PROJECTS.map((proj) => (
               <motion.div
-                key={idx}
+                key={proj.id}
                 initial={{ opacity: 0, y: 20 }}
                 whileInView={{ opacity: 1, y: 0 }}
                 viewport={{ once: true }}
                 whileHover={{ y: -8 }}
                 transition={{ duration: 0.3 }}
-                className="bg-slate-900/60 border border-slate-800/80 rounded-xl p-6 flex flex-col justify-between hover:border-indigo-500/50 transition duration-300 shadow-xl"
+                className="bg-slate-900/60 border border-slate-800/80 rounded-xl overflow-hidden flex flex-col justify-between hover:border-indigo-500/50 transition duration-300 shadow-xl"
               >
                 <div>
-                  <h3 className="text-xl font-bold mb-2 group-hover:text-indigo-400 transition">{proj.title}</h3>
-                  <p className="text-slate-400 text-sm leading-relaxed mb-4">{proj.desc}</p>
-                </div>
-                
-                <div>
-                  <div className="flex flex-wrap gap-2 mb-6">
-                    {proj.tags.map((tag, tIdx) => (
-                      <span key={tIdx} className="text-[11px] font-mono px-2.5 py-1 bg-slate-800 text-indigo-300 rounded">
-                        #{tag}
-                      </span>
-                    ))}
+                  <div className="h-44 overflow-hidden border-b border-slate-800/80 relative group bg-slate-950 flex items-center justify-center">
+                    <img 
+                      src={proj.image} 
+                      alt={proj.title} 
+                      className="w-full h-full object-cover group-hover:scale-105 transition duration-500"
+                      onError={(e) => {
+                        e.target.style.display = 'none';
+                        e.target.nextSibling.style.display = 'flex';
+                      }}
+                    />
+                    <div className="hidden w-full h-full flex items-center justify-center bg-indigo-950/30 text-indigo-400 text-xs font-mono">
+                      [ Preview Image ]
+                    </div>
                   </div>
 
-                  <div className="flex gap-4 pt-4 border-t border-slate-800/60">
-                    <a href={proj.demo} className="flex items-center gap-1.5 text-xs font-semibold text-slate-300 hover:text-indigo-400 transition">
-                      <ExternalLink size={14} /> Demo Live
-                    </a>
-                    <a href={proj.github} className="flex items-center gap-1.5 text-xs font-semibold text-slate-300 hover:text-indigo-400 transition">
-                      <Github size={14} /> Source Code
-                    </a>
+                  <div className="p-6">
+                    <h3 className="text-lg font-bold mb-2 group-hover:text-indigo-400 transition">{proj.title}</h3>
+                    <p className="text-slate-400 text-sm leading-relaxed">{proj.desc}</p>
+                  </div>
+                </div>
+                
+                <div className="px-6 pb-6">
+                  <div className="flex items-center justify-between pt-4 border-t border-slate-800/60">
+                    <div>
+                      {proj.demo ? (
+                        <a 
+                          href={proj.demo} 
+                          target="_blank" 
+                          rel="noreferrer" 
+                          className="flex items-center gap-1.5 text-xs font-semibold text-indigo-400 hover:text-indigo-300 transition"
+                        >
+                          <ExternalLink size={14} /> Link Website
+                        </a>
+                      ) : (
+                        <span className="text-xs text-slate-500 italic">Hệ thống nội bộ</span>
+                      )}
+                    </div>
+
+                    <button
+                      onClick={() => openModal(proj)}
+                      className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-slate-800 hover:bg-slate-700 text-xs font-medium text-slate-200 transition"
+                    >
+                      <Eye size={14} /> Xem chi tiết
+                    </button>
                   </div>
                 </div>
               </motion.div>
             ))}
           </div>
         </section>
-
-        {/* --- FORM LIÊN HỆ --- */}
-        <section id="contact" className="space-y-8 max-w-2xl mx-auto">
-          <div className="text-center space-y-2">
-            <h2 className="text-3xl font-bold">Gửi Tin Nhắn</h2>
-            <p className="text-slate-400 text-sm">Bạn có dự án hoặc cơ hội hợp tác? Đừng ngần ngại liên hệ với tôi.</p>
-          </div>
-
-          <form onSubmit={(e) => e.preventDefault()} className="space-y-4 bg-slate-900/40 p-8 rounded-2xl border border-slate-800">
-            <div>
-              <label className="block text-xs font-medium text-slate-400 mb-1">Họ & Tên</label>
-              <input type="text" placeholder="Nguyễn Văn A" className="w-full bg-slate-950 border border-slate-800 rounded-lg px-4 py-2.5 text-sm text-slate-100 focus:outline-none focus:border-indigo-500 transition" />
-            </div>
-            <div>
-              <label className="block text-xs font-medium text-slate-400 mb-1">Email</label>
-              <input type="email" placeholder="your-email@gmail.com" className="w-full bg-slate-950 border border-slate-800 rounded-lg px-4 py-2.5 text-sm text-slate-100 focus:outline-none focus:border-indigo-500 transition" />
-            </div>
-            <div>
-              <label className="block text-xs font-medium text-slate-400 mb-1">Nội dung tin nhắn</label>
-              <textarea rows={4} placeholder="Nội dung công việc..." className="w-full bg-slate-950 border border-slate-800 rounded-lg px-4 py-2.5 text-sm text-slate-100 focus:outline-none focus:border-indigo-500 transition resize-none" />
-            </div>
-            <button type="submit" className="w-full flex items-center justify-center gap-2 py-3 rounded-lg bg-indigo-600 hover:bg-indigo-500 font-semibold text-sm transition shadow-lg shadow-indigo-600/30">
-              <Send size={16} /> Gửi Tin Nhắn
-            </button>
-          </form>
-        </section>
-
       </main>
 
-      {/* FOOTER */}
+      {/* Modal Popup */}
+      <AnimatePresence>
+        {activeProject && (
+          <motion.div 
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-950/80 backdrop-blur-md"
+            onClick={closeModal}
+          >
+            <motion.div 
+              initial={{ scale: 0.9, opacity: 0 }}
+              animate={{ scale: 1, opacity: 1 }}
+              exit={{ scale: 0.9, opacity: 0 }}
+              className="bg-slate-900 border border-slate-800 rounded-2xl p-6 max-w-3xl w-full max-h-[90vh] overflow-y-auto space-y-6 relative"
+              onClick={(e) => e.stopPropagation()}
+            >
+              <button 
+                onClick={closeModal}
+                className="absolute top-4 right-4 p-2 rounded-full bg-slate-800 hover:bg-slate-700 text-slate-400 hover:text-white transition"
+              >
+                <X size={20} />
+              </button>
+
+              <h3 className="text-2xl font-bold pr-8">{activeProject.title}</h3>
+              <p className="text-sm text-slate-400">{activeProject.desc}</p>
+
+              <div className="relative h-72 sm:h-96 rounded-xl overflow-hidden bg-slate-950 border border-slate-800 flex items-center justify-center">
+                <img 
+                  src={activeProject.gallery[currentImageIdx]} 
+                  alt="Gallery Preview" 
+                  className="w-full h-full object-contain"
+                  onError={(e) => {
+                    e.target.style.display = 'none';
+                    e.target.nextSibling.style.display = 'flex';
+                  }}
+                />
+                <div className="hidden w-full h-full flex flex-col items-center justify-center text-slate-500 text-sm gap-2">
+                  <span>Chưa có tệp hình ảnh tại:</span>
+                  <code className="text-indigo-400 bg-slate-900 px-3 py-1 rounded text-xs">{activeProject.gallery[currentImageIdx]}</code>
+                </div>
+
+                {activeProject.gallery.length > 1 && (
+                  <>
+                    <button 
+                      onClick={() => setCurrentImageIdx((prev) => (prev === 0 ? activeProject.gallery.length - 1 : prev - 1))}
+                      className="absolute left-3 top-1/2 -translate-y-1/2 p-2 rounded-full bg-slate-900/80 hover:bg-slate-800 text-white transition"
+                    >
+                      <ChevronLeft size={20} />
+                    </button>
+                    <button 
+                      onClick={() => setCurrentImageIdx((prev) => (prev === activeProject.gallery.length - 1 ? 0 : prev + 1))}
+                      className="absolute right-3 top-1/2 -translate-y-1/2 p-2 rounded-full bg-slate-900/80 hover:bg-slate-800 text-white transition"
+                    >
+                      <ChevronRight size={20} />
+                    </button>
+                  </>
+                )}
+              </div>
+
+              {activeProject.gallery.length > 1 && (
+                <div className="flex gap-2 overflow-x-auto pb-2">
+                  {activeProject.gallery.map((img, idx) => (
+                    <button 
+                      key={idx}
+                      onClick={() => setCurrentImageIdx(idx)}
+                      className={`w-16 h-16 rounded-lg overflow-hidden border-2 bg-slate-950 transition ${idx === currentImageIdx ? 'border-indigo-500' : 'border-transparent opacity-60'}`}
+                    >
+                      <img src={img} alt="thumb" className="w-full h-full object-cover" />
+                    </button>
+                  ))}
+                </div>
+              )}
+            </motion.div>
+          </motion.div>
+        )}
+      </AnimatePresence>
+
       <footer className="border-t border-slate-800/80 py-8 text-center text-xs text-slate-500">
-        © {new Date().getFullYear()} {PERSONAL_INFO.name}. Built with React, Three.js & Tailwind CSS.
+        © {new Date().getFullYear()} {PERSONAL_INFO.name}.
       </footer>
     </div>
   );
