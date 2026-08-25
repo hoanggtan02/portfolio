@@ -58,14 +58,13 @@ function Interactive3DCharacter() {
           className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-72 h-72 bg-gradient-to-tr from-indigo-600/40 via-purple-600/30 to-pink-500/20 rounded-full blur-3xl opacity-80 pointer-events-none"
         />
 
-        {/* Lớp 3: Ảnh nhân vật PNG nổi lên trên cùng (TranslateZ cao hơn khung) */}
+        {/* Lớp 3: Ảnh nhân vật PNG nổi lên trên cùng */}
         <motion.img 
-          src="/assets/avatar.png" 
+          src="./assets/avatar.png" 
           alt="Thái Hoàng Tân 3D"
           style={{ transform: "translateZ(60px)" }}
           className="relative z-10 h-[500px] object-contain drop-shadow-[0_20px_35px_rgba(0,0,0,0.85)] pointer-events-none select-none"
           onError={(e) => {
-            // Ảnh fallback nếu chưa đổi đường dẫn
             e.target.src = "https://images.unsplash.com/photo-1534528741775-53994a69daeb?auto=format&fit=crop&w=800&q=80";
           }}
         />
@@ -109,40 +108,40 @@ const PROJECTS = [
     id: 1,
     title: "Website Thương Mại Điện Tử Thành Nhân TNC",
     desc: "Tối ưu hóa hệ thống bán hàng thiết bị công nghệ.",
-    image: "/assets/projects/tnc-1.jpg",
-    gallery: ["/assets/projects/tnc-1.jpg", "/assets/projects/tnc-2.jpg"],
+    image: "./assets/projects/tnc-1.jpg",
+    gallery: ["./assets/projects/tnc-1.jpg", "./assets/projects/tnc-2.jpg"],
     demo: "https://www.tnc.com.vn/"
   },
   {
     id: 2,
     title: "Nền Tảng Trí Tuệ Nhân Tạo AI VMIED",
     desc: "Hệ thống tích hợp các mô hình AI phục vụ học tập, tra cứu kiến thức và xử lý dữ liệu thông minh cho người dùng.",
-    image: "/assets/projects/ai-1.jpg",
-    gallery: ["/assets/projects/ai-1.jpg"],
+    image: "./assets/projects/ai-1.jpg",
+    gallery: ["./assets/projects/ai-1.jpg"],
     demo: "https://ai.vmied.com/"
   },
   {
     id: 3,
     title: "Hệ Thống Quản Lý Học Tập VMIED LMS",
     desc: "Nền tảng quản lý khóa học, bài giảng và tiến độ học tập trực tuyến dành cho học viên và giảng viên.",
-    image: "/assets/projects/lms-1.jpg",
-    gallery: ["/assets/projects/lms-1.jpg"],
+    image: "./assets/projects/lms-1.jpg",
+    gallery: ["./assets/projects/lms-1.jpg"],
     demo: "https://lms.vmied.com/"
   },
   {
     id: 4,
     title: "Website Thương Hiệu Ngọc Hiền Pearl",
     desc: "Website giới thiệu và trưng bày các sản phẩm ngọc trai cao cấp, tối ưu trải nghiệm thương hiệu và hiển thị sản phẩm.",
-    image: "/assets/projects/pearl-1.jpg",
-    gallery: ["/assets/projects/pearl-1.jpg"],
+    image: "./assets/projects/pearl-1.jpg",
+    gallery: ["./assets/projects/pearl-1.jpg"],
     demo: "https://ngochienpearl.com/"
   },
   {
     id: 5,
     title: "Hệ Thống Quản Trị Doanh Nghiệp ERP & CRM Nội Bộ",
     desc: "Phân hệ quản trị nội bộ nâng cao: phân quyền đa tầng, quản lý nhân sự HRM, quản lý dự án, tính hoa hồng tự động và xuất báo cáo Excel.",
-    image: "/assets/projects/erp-1.jpg",
-    gallery: ["/assets/projects/erp-1.jpg", "/assets/projects/erp-2.jpg","/assets/projects/erp-3.jpg"],
+    image: "./assets/projects/erp-1.jpg",
+    gallery: ["./assets/projects/erp-1.jpg", "./assets/projects/erp-2.jpg", "./assets/projects/erp-3.jpg"],
     demo: null
   }
 ];
